@@ -1,7 +1,7 @@
 import axios from "axios"
 
-export const BACKEND_URL = "https://sendemailproject-backend.onrender.com/"
-const uri = BACKEND_URL + "/api";
+export const BACKEND_URL = "https://sendemailproject-backend.onrender.com"
+const uri = BACKEND_URL + "api";
 
 axios.defaults.withCredentials = true
 // axios.defaults.headers.common['Authorization']=`Bearer ${localStorage .getItem('token')}`
