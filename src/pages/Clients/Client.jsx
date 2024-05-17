@@ -18,6 +18,7 @@ const Client = () => {
         setClients(res?.data?.clients);
       }
     } catch (err) {
+      console.log("err occured-----",err)
       toast.error(err?.response?.data?.message || "Something went wrong");
     }finally{
       hideLoader()
@@ -159,7 +160,7 @@ export const AddClient = ({
         setClientAdded(!clientAdded);
         setToggleAddClient(false);
       } catch (err) {
-        console.log(err);
+        console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
       }
     }

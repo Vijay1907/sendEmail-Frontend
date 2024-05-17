@@ -83,7 +83,7 @@ const Profile = () => {
         localStorage.clear();
         navigate("/signin");
       } catch (err) {
-        console.log(err);
+        console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
       }finally{
         hideLoader()
@@ -118,6 +118,7 @@ const Profile = () => {
       let res = await getAdminProfile();
       setUserData(res?.data?.adminProfile);
     } catch (err) {
+    console.log("err occured-----",err)
       toast.error(err?.response?.data?.message || "Something went wrong");
     }finally{
       hideLoader()
@@ -146,6 +147,7 @@ const Profile = () => {
         let res = await updateaAdminProfile(userData);
         toast.success(res?.data?.message);
       } catch (err) {
+      console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
       }finally{
         hideLoader()

@@ -22,9 +22,10 @@ const Dashboard = () => {
         setClientsCount(res?.data?.clientsCount);
       }
     } catch (err) {
+      console.log("err occured-----",err)
       const loggedIn = localStorage.getItem("token") !== null;
       if (loggedIn) {
-        toast.error(err?.response?.data?.message || "Something went wrong");
+        toast.error(err?.response?.data?.message || "Admin is not logged in");
       }
     } finally {
       hideLoader();
@@ -143,6 +144,7 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
         setCategoryAdded(!categoryAdded);
         toast.success(res?.data?.message);
       } catch (err) {
+        console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
       }
     }
@@ -241,6 +243,7 @@ const EmailComposePopup = ({ onClose, emails }) => {
       // Close popup
       onClose();
     } catch (err) {
+      console.log("err occured-----",err)
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
   };

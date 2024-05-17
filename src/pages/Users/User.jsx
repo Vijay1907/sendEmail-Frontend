@@ -22,14 +22,11 @@ const User = () => {
       let res = await retrieveUsers(categoryId);
       if (res.status == 200) {
         setUsers(res?.data?.users);
-        setUsersCount(res?.data?.usersCount);
-        setClientsCount(res?.data?.clientsCount);
       }
     } catch (err) {
-      const loggedIn = localStorage.getItem("token") !== null;
-      if (loggedIn) {
+      console.log("err occured-----",err)
+     
         toast.error(err?.response?.data?.message || "Something went wrong");
-      }
     }finally{
       hideLoader()
     }
@@ -186,6 +183,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
         setUserAdded(!userAdded);
         toast.success(res?.data?.message);
       } catch (err) {
+        console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
       }
     }
@@ -342,6 +340,7 @@ const EmailComposePopup = ({ onClose, emails }) => {
       // Close popup
       onClose();
     } catch (err) {
+      console.log("err occured-----",err)
       toast.error(err?.response?.data?.message || "Something went wrong");
     }finally{
       hideLoader()
