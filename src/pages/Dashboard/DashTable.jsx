@@ -18,13 +18,23 @@ const DashTable = ({ users, selectedRows, setSelectedRows }) => {
     };
   });
 
-  const handleRowSelect = (email) => {
-    if (selectedRows.includes(email)) {
-      setSelectedRows(selectedRows.filter((row) => row !== email));
+  // const handleRowSelect = (email) => {
+  //   if (selectedRows.includes(email)) {
+  //     setSelectedRows(selectedRows.filter((row) => row !== email));
+  //   } else {
+  //     setSelectedRows([...selectedRows, email]);
+  //   }
+  // };
+
+  const handleRowSelect = (row) => {
+    const rowIndex = selectedRows.findIndex(r => r.email === row.email);
+    if (rowIndex !== -1) {
+      setSelectedRows(selectedRows.map(r =>{r.email !== row.email } ));
     } else {
-      setSelectedRows([...selectedRows, email]);
+      setSelectedRows([...selectedRows, row]);
     }
   };
+  
 
   return (
     <>
@@ -40,7 +50,12 @@ const DashTable = ({ users, selectedRows, setSelectedRows }) => {
                   type="checkbox"
                   checked={selectedRows.length === users?.length}
                   onChange={() => {
-                    const allEmails = users?.map((item) => item.email);
+                    const allEmails = users?.map((item) => {
+                          return {
+                            email:item.email,
+                            nickName:item.nickName
+                          }
+                    });
                     if (selectedRows.length === users?.length) {
                       setSelectedRows([]);
                     } else {
@@ -76,8 +91,8 @@ const DashTable = ({ users, selectedRows, setSelectedRows }) => {
                 <td className="px-6 py-4">
                   <input
                     type="checkbox"
-                    checked={selectedRows.includes(item.email)}
-                    onChange={() => handleRowSelect(item.email)}
+                    checked={selectedRows.some(row => row.email === item.email)}
+                    onChange={() => handleRowSelect({email:item.email,nickName:item.nickName})}
                   />
                 </td>
                 <td className="px-6 py-2">{index + 1}</td>

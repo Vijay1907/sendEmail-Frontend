@@ -1,5 +1,6 @@
 import axios from "axios"
 
+// export const BACKEND_URL = "http://localhost:3000"
 export const BACKEND_URL = "https://sendemailproject-backend.onrender.com"
 const uri = BACKEND_URL + "/api";
 
