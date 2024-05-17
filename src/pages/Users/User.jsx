@@ -1,24 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
-import { addCategory, addUser, dashboardData, sendEmail } from "../../services/service";
+import DashTable from "./UserTable";
+import { addUser, dashboardData, retrieveUsers, sendEmail } from "../../services/service";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
-import Card from "./Card"
+import { useParams } from 'react-router-dom';
 import { useLoader } from "../../context/LoaderContext/LoaderContext";
 
+const User = () => {
+  
+  const { showLoader, hideLoader } = useLoader()
+  const { categoryId,categoryName } = useParams();
+  const [toggleAddUser, setToggleAddUser] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [composeEmailOpen, setComposeEmailOpen] = useState(false);
+  const [userAdded, setUserAdded] = useState(true);
 
-const Dashboard = () => {
-  const { showLoader, hideLoader } = useLoader();
-  const [toggleAddCategory, setToggleAddCategory] = useState(false);
-  const [cards, setCards] = useState([]);
-  const [clientsCount, setClientsCount] = useState(0);
-  const [categoryAdded, setCategoryAdded] = useState(true);
-
-  const dashboardApi = async () => {
-    try { 
-    showLoader()
-      let res = await dashboardData();
+  const getUserApi = async () => {
+    try {
+      showLoader()
+      let res = await retrieveUsers(categoryId);
       if (res.status == 200) {
-        setCards(res?.data?.data);
+        setUsers(res?.data?.users);
+        setUsersCount(res?.data?.usersCount);
         setClientsCount(res?.data?.clientsCount);
       }
     } catch (err) {
@@ -26,18 +30,35 @@ const Dashboard = () => {
       if (loggedIn) {
         toast.error(err?.response?.data?.message || "Something went wrong");
       }
-    } finally {
-      hideLoader();
+    }finally{
+      hideLoader()
     }
   };
 
+  const handleExportToExcel = () => {
+    showLoader()
+    const data = users.map((user) => ({
+      "S No.": users.indexOf(user) + 1,
+      Name: user.name,
+      "Nick Name": user.nickName,
+      Category : categoryName,
+      Email: user.email,
+      Address: user.address,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
+    XLSX.writeFile(wb, "users.xlsx");
+    hideLoader()
+  };
 
   useEffect(() => {
-    dashboardApi();
-  }, [categoryAdded]);
+    getUserApi();
+  }, [userAdded]);
 
   useEffect(() => {
-    if (toggleAddCategory) {
+    if (toggleAddUser || composeEmailOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -45,70 +66,84 @@ const Dashboard = () => {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [toggleAddCategory]);
-
-  const colors = [
-    "bg-red-500", "bg-yellow-500",
-    "bg-purple-500", "bg-pink-500", "bg-indigo-500", "bg-teal-500",
-    "bg-orange-500", "bg-gray-500", "bg-lime-500", "bg-cyan-500","bg-blue-500",
-  ];
+  }, [toggleAddUser, composeEmailOpen]);
 
   return (
     <div className="p-5 px-12 bg-color1 min-h-[100vh]">
       <div className="flex justify-end">
-     
+        <button
+          className="bg-green-500 px-3 hover:bg-green-900 rounded-lg text-white py-2 mr-4"
+          onClick={() => handleExportToExcel()}
+        >
+          Export Excel
+        </button>
         <button
           className="bg-blue-500 px-3 hover:bg-blue-800 rounded-lg text-white py-2 mr-4"
           onClick={() => {
-            setToggleAddCategory(true);
+            setToggleAddUser(true);
           }}
         >
-          Add Category
+          Add User
         </button>
-  
+        {selectedRows.length > 0 && users.length > 0 ? (
+          <button
+            className="bg-yellow-500 px-3 hover:bg-yellow-600 rounded-lg text-white py-2"
+            onClick={() => setComposeEmailOpen(true)}
+          >
+            Drop Mail
+          </button>
+        ) : (
+          <button
+            className="bg-yellow-500 px-3 rounded-lg text-white py-2 cursor-not-allowed opacity-50"
+            disabled
+          >
+            Drop Mail
+          </button>
+        )}
       </div>
-      <div className="flex mt-8 flex-wrap">
-      {cards.map((card, index) => (
-        <Card
-          key={index}
-          item={{
-            ...card,
-            bcolor: colors[index % colors.length],
-          }}
-        />
-      ))}
-        <Card
-          item={{
-            name: "Total Clients",
-            count: clientsCount,
-            bcolor: "bg-green-500",
-          }}
-        />
-      </div>
+      <DashTable
+      categoryName={categoryName}
+        users={users}
+        selectedRows={selectedRows}
+        setSelectedRows={setSelectedRows}
+      />
 
-
-      {toggleAddCategory && (
-        <AddCategory
-          setToggleAddCategory={setToggleAddCategory}
-          setCategoryAdded={setCategoryAdded}
-          categoryAdded={categoryAdded}
+      {toggleAddUser && (
+        <AddUser
+          setToggleAddUser={setToggleAddUser}
+          setUserAdded={setUserAdded}
+          userAdded={userAdded}
+          categoryId={categoryId}
         />
       )}
 
+      {composeEmailOpen && (
+        <EmailComposePopup
+          emails={selectedRows}
+          onClose={() => setComposeEmailOpen(false)}
+        />
+      )}
     </div>
   );
 };
 
-export default Dashboard;
+export default User;
 
-export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAdded }) => {
-  const { showLoader, hideLoader } = useLoader();
+export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }) => {
+  
+  const { showLoader, hideLoader } = useLoader()
   const [formData, setFormData] = useState({
-    categoryName: "",
+    name: "",
+    nickName: "",
+    email: "",
+    address: "",
   });
 
   const [errors, setErrors] = useState({
-    categoryName: "",
+    name: "",
+    nickName: "",
+    email: "",
+    address: "",
   });
 
   const handleChange = (e) => {
@@ -128,8 +163,16 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
     e.preventDefault();
 
     const updatedErrors = {
-      categoryName: !formData.categoryName && "Category Name is required",
+      name: !formData.name && "Name is required",
+      nickName: !formData.nickName && "Nick Name is required",
+      email: !formData.email && "Email is required",
+      address: !formData.address && "Address is required",
     };
+
+    // Check if email is present and if it matches the email pattern
+    if (updatedErrors.email === "" || !/^\S+@\S+\.\S+$/.test(formData.email)) {
+      updatedErrors.email = "Invalid email address";
+    }
 
     const hasErrors = Object.values(updatedErrors).some((error) => !!error);
 
@@ -138,9 +181,9 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
     } else {
       setErrors({});
       try {
-        let res = await addCategory(formData);
-        setToggleAddCategory(false);
-        setCategoryAdded(!categoryAdded);
+        let res = await addUser({...formData,categoryId});
+        setToggleAddUser(false);
+        setUserAdded(!userAdded);
         toast.success(res?.data?.message);
       } catch (err) {
         toast.error(err?.response?.data?.message || "Something went wrong");
@@ -150,11 +193,11 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
 
   return (
     <div className="fixed w-[full] inset-0 bg-gray-700/80">
-      <div className="bg-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6 w-[40%] rounded">
+      <div className="bg-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6 w-[50%] rounded">
         <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 ">
-          <h3 className="text-lg font-semibold text-gray-900">Add Category</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Add User</h3>
           <button
-            onClick={() => setToggleAddCategory(false)}
+            onClick={() => setToggleAddUser(false)}
             type="button"
             className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
           >
@@ -178,30 +221,86 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
           <div className="grid gap-4 mb-4 ">
             <div>
               <label
-                htmlFor="categoryName"
+                htmlFor="name"
                 className="block mb-2 text-sm font-medium text-gray-900 ml-1"
               >
-                Category Name
+                Name
               </label>
               <input
                 type="text"
-                name="categoryName"
-                value={formData.categoryName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
-                placeholder="Enter Category Name"
+                placeholder="Enter Name"
               />
-              {errors.categoryName && (
-                <p className="text-red-500 text-sm">{errors.categoryName}</p>
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name}</p>
               )}
             </div>
-         
+            <div>
+              <label
+                htmlFor="price"
+                className="block mb-2 text-sm font-medium text-gray-900 ml-1"
+              >
+                Nick Name
+              </label>
+              <input
+                type="text"
+                name="nickName"
+                value={formData.nickName}
+                onChange={handleChange}
+                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                placeholder="Enter Nick Name"
+              />
+              {errors.nickName && (
+                <p className="text-red-500 text-sm">{errors.nickName}</p>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="category"
+                className="block mb-2 text-sm font-medium text-gray-900 ml-1"
+              >
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                placeholder="Enter Email"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email}</p>
+              )}
+            </div>
+            <div className="">
+              <label
+                htmlFor="description"
+                className="block mb-2 text-sm font-medium text-gray-900 ml-1"
+              >
+                Address
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                placeholder="Enter Address"
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address}</p>
+              )}
+            </div>
           </div>
           <button
             type="submit"
             className="bg-green-600 px-3 hover:bg-green-800 rounded-lg text-white py-2"
           >
-            Add Category
+            Add User
           </button>
         </form>
       </div>
@@ -210,6 +309,7 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
 };
 
 const EmailComposePopup = ({ onClose, emails }) => {
+  const {showLoader,hideLoader} = useLoader()
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -220,6 +320,7 @@ const EmailComposePopup = ({ onClose, emails }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      showLoader()
       const formDataToSend = new FormData();
 
       // Append subject, message, and emails to FormData
@@ -242,6 +343,8 @@ const EmailComposePopup = ({ onClose, emails }) => {
       onClose();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
+    }finally{
+      hideLoader()
     }
   };
 

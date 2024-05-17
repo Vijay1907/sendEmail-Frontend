@@ -2,20 +2,25 @@ import React, { useState, useEffect } from "react";
 import ClientTable from "./ClientTable";
 import { toast } from "react-toastify";
 import { addClient, retrieveClients } from "../../services/service";
+import { useLoader } from "../../context/LoaderContext/LoaderContext";
 
 const Client = () => {
+  const { showLoader, hideLoader } = useLoader()
   const [toggleAddClient, setToggleAddClient] = useState(false);
   const [clients, setClients] = useState([]);
   const [clientAdded, setClientAdded] = useState(true);
 
   const getClientsApi = async () => {
     try {
+      showLoader()
       let res = await retrieveClients();
       if (res.status == 200) {
         setClients(res?.data?.clients);
       }
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
+    }finally{
+      hideLoader()
     }
   };
 
@@ -65,6 +70,7 @@ export const AddClient = ({
   clientAdded,
   setClientAdded,
 }) => {
+  const { showLoader, hideLoader } = useLoader()
   const [formData, setFormData] = useState({
     clientName: "",
     companyName: "",
@@ -105,6 +111,7 @@ export const AddClient = ({
   };
 
   const handleSubmit = async (e) => {
+    showLoader()
     e.preventDefault();
 
     const updatedErrors = {

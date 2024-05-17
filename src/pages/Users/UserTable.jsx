@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const DashTable = ({ users, selectedRows, setSelectedRows }) => {
+const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
   const [editData, setEditData] = useState();
   const [toggleEdit, setToggleEdit] = useState(false);
   const [toggleDelete, setToggleDelete] = useState(false);
@@ -41,7 +41,7 @@ const DashTable = ({ users, selectedRows, setSelectedRows }) => {
       <div className="overflow-x-auto shadow-xl mt-10">
         <table className="w-full text-sm text-left text-gray-500 ">
           <caption className="p-5 text-2xl font-bold text-left text-gray-900 bg-white ">
-            Users
+            Users - {categoryName}
           </caption>
           <thead className="text-sm text-gray-500 uppercase">
             <tr className="bg-white border-b-[1px] ">

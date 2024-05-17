@@ -10,11 +10,17 @@ import Client from "./pages/Clients/Client";
 import NotFound from "./pages/NotFound/NotFound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import User from "./pages/Users/User";
+import Loader from "react-js-loader";
+import { useLoader } from "./context/LoaderContext/LoaderContext";
+
+
 const AllRoutes = () => {
   const location = useLocation();
   // const shouldShowNavbarAndFooter = location.pathname !== routes.signIn;
   const navigate = useNavigate();
   const loggedIn = localStorage.getItem("token") !== null;
+  const { loading } = useLoader();
   useEffect(() => {
     if (!loggedIn) {
       navigate("/signin");
@@ -24,7 +30,13 @@ const AllRoutes = () => {
   return (
     <>
       {loggedIn && location.pathname !== routes.signIn && <Sidebar />}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 bg-gray-700">
+          <Loader type="spinner-cub" bgColor={"rgb(0, 0, 0)"} color={"rgb(0, 0, 0)"} title={"Loading..."} size={100} />
+        </div>
+      )}
       <div className="ml-14">
+     
         <ToastContainer
           position="top-center"
           autoClose={3500}
@@ -43,6 +55,7 @@ const AllRoutes = () => {
           <Route path={routes.clients} element={<Client />} />
           <Route path={routes.profile} element={<Profile />} />
           <Route path={routes.signIn} element={<SignIn />} />
+          <Route path={routes.users} element={<User />} />
 
           {/* Route for Not Found page */}
           <Route path="*" element={<NotFound />} />

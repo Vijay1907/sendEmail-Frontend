@@ -17,6 +17,7 @@ export const routes = {
     clients: "/clients",
     profile: "/profile",
     signIn: "/signin",
+    users:"/users/:categoryName/:categoryId"
 }
 
 

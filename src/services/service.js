@@ -40,12 +40,15 @@ export const dashboardData = () => {
     return axios.get(uri + '/admin/dashboard')
 }
 
-export const retrieveUsers = () => {
-    return axios.get(uri + '/users')
+export const retrieveUsers = (categoryId) => {
+    return axios.get(uri + `/admin/get_users/${categoryId}`)
 }
 
 export const addUser = (payload) => {
     return axios.post(uri + '/admin/create_user', payload)
+}
+export const addCategory = (payload) => {
+    return axios.post(uri + '/admin/create_category', payload)
 }
 
 export const retrieveClients = () => {

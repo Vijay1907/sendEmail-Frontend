@@ -9,9 +9,11 @@ import {
 } from "../../services/service";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useLoader } from "../../context/LoaderContext/LoaderContext";
 const eye = <FontAwesomeIcon icon={faEye} />;
 
 const Profile = () => {
+  const { showLoader, hideLoader } = useLoader()
   const navigate = useNavigate();
   const [view, setView] = useState(true);
   const [edit, setEdit] = useState(false);
@@ -45,6 +47,7 @@ const Profile = () => {
   };
 
   const updatePasswords = async () => {
+    showLoader()
     const updatedErrors = {
       oldPassword: !passwordFields.oldPassword && "Old Password is required",
       newPassword: !passwordFields.newPassword && "New Password is required",
@@ -82,6 +85,8 @@ const Profile = () => {
       } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || "Something went wrong");
+      }finally{
+        hideLoader()
       }
     }
   };
@@ -109,14 +114,18 @@ const Profile = () => {
 
   const getAdminData = async () => {
     try {
+      showLoader()
       let res = await getAdminProfile();
       setUserData(res?.data?.adminProfile);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
+    }finally{
+      hideLoader()
     }
   };
 
   const updatePrfoile = async () => {
+    showLoader()
     const updatedErrors = {
       name: !userData.name && "Name is required",
       email: !userData.email && "Email is required",
@@ -138,6 +147,8 @@ const Profile = () => {
         toast.success(res?.data?.message);
       } catch (err) {
         toast.error(err?.response?.data?.message || "Something went wrong");
+      }finally{
+        hideLoader()
       }
     }
   };

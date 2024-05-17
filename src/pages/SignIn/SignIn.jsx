@@ -5,9 +5,11 @@ import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { adminLogin } from "../../services/service";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useLoader } from "../../context/LoaderContext/LoaderContext";
 const eye = <FontAwesomeIcon icon={faEye} />;
 
 const SignIn = () => {
+  const { showLoader, hideLoader } = useLoader()
   const navigate = useNavigate();
   const [focus, setFocus] = useState({});
   const [form, setForm] = useState({});
@@ -22,6 +24,7 @@ const SignIn = () => {
   };
 
   const signIn = async () => {
+    showLoader()
     const updatedErrors = {
       email: !form.email && "Email is required",
       password: !form.password && "Password is required",
@@ -47,6 +50,8 @@ const SignIn = () => {
       } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || "Something went wrong");
+      }finally{
+        hideLoader()
       }
     }
   };
