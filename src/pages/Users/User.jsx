@@ -185,6 +185,8 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
       } catch (err) {
         console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
+      }finally{
+        hideLoader()
       }
     }
   };

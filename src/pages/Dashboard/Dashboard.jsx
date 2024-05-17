@@ -146,6 +146,8 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
       } catch (err) {
         console.log("err occured-----",err)
         toast.error(err?.response?.data?.message || "Something went wrong");
+      }finally{
+        hideLoader()
       }
     }
   };
@@ -245,6 +247,8 @@ const EmailComposePopup = ({ onClose, emails }) => {
     } catch (err) {
       console.log("err occured-----",err)
       toast.error(err?.response?.data?.message || "Something went wrong");
+    }finally{
+      hideLoader()
     }
   };
 
