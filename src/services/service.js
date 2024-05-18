@@ -50,6 +50,9 @@ export const addUser = (payload) => {
 export const addCategory = (payload) => {
     return axios.post(uri + '/admin/create_category', payload)
 }
+export const deleteCategory = (categoryId) => {
+    return axios.delete(uri + `/admin/delete_category/${categoryId}`)
+}
 
 export const retrieveClients = () => {
     return axios.get(uri + '/admin/get_clients')

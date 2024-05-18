@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { addCategory, addUser, dashboardData, sendEmail } from "../../services/service";
+import { addCategory, addUser, dashboardData, deleteCategory, sendEmail } from "../../services/service";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import Card from "./Card"
@@ -9,10 +9,12 @@ import { useLoader } from "../../context/LoaderContext/LoaderContext";
 const Dashboard = () => {
   const { showLoader, hideLoader } = useLoader();
   const [toggleAddCategory, setToggleAddCategory] = useState(false);
+  const [toggleDeleteCategory, setToggleDeleteCategory] = useState(false);
   const [cards, setCards] = useState([]);
+  const [showingCard,setShowingCard]  = useState(null)
   const [clientsCount, setClientsCount] = useState(0);
   const [categoryAdded, setCategoryAdded] = useState(true);
-
+  const [categoryDeleted, setCategoryDeleted] = useState(true);
   const dashboardApi = async () => {
     try { 
     showLoader()
@@ -32,13 +34,24 @@ const Dashboard = () => {
     }
   };
 
+  const handleSelectChange = (e) => {
+    showLoader()
+    const selectedId = e.target.value;
+    const selectedOption = cards.find(option => option._id === selectedId);
+    console.log("selectedOption",e.target.value)
+    setShowingCard(selectedOption);
+    hideLoader()
+  };
+
+
+
 
   useEffect(() => {
     dashboardApi();
-  }, [categoryAdded]);
+  }, [categoryAdded, categoryDeleted]);
 
   useEffect(() => {
-    if (toggleAddCategory) {
+    if (toggleAddCategory || toggleDeleteCategory) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -68,24 +81,42 @@ const Dashboard = () => {
         </button>
   
       </div>
-      <div className="flex mt-8 flex-wrap">
-      {cards.map((card, index) => (
-        <Card
-          key={index}
-          item={{
-            ...card,
-            bcolor: colors[index % colors.length],
-          }}
-        />
-      ))}
-        <Card
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-4">Category Dropdown</h1>
+        {/* Dropdown */}
+        <select className="border p-2 rounded-lg w-[30%]" onChange={handleSelectChange}>
+          {/* Rendering dropdown options */}
+          <option value="">Select</option>
+          {cards.map((option) => (
+            <option key={option._id} value={option._id}>{option.categoryName}</option>
+          ))}
+        </select>
+      </div>
+     
+      {showingCard ?
+       <div className="flex items-center  justify-center mt-8 flex-wrap">
+      <Card
+      item={{
+        ...showingCard,
+        // bcolor: colors[index % colors.length],
+        bcolor: "bg-green-500",
+       
+      }}
+    /> <button className="bg-red-500 ml-7 text-white py-2 px-3 rounded text-lg cursor-pointer" onClick={(e)=>{
+      setToggleDeleteCategory(true)
+    }
+    }>Delete</button>
+     </div>
+      :null
+        }
+        {/* <Card
           item={{
             name: "Total Clients",
             count: clientsCount,
             bcolor: "bg-green-500",
           }}
-        />
-      </div>
+        /> */}
+     
 
 
       {toggleAddCategory && (
@@ -93,6 +124,15 @@ const Dashboard = () => {
           setToggleAddCategory={setToggleAddCategory}
           setCategoryAdded={setCategoryAdded}
           categoryAdded={categoryAdded}
+        />
+      )}
+      {toggleDeleteCategory && (
+        <DeleteCategory
+        setShowingCard={setShowingCard}
+          setToggleDeleteCategory={setToggleDeleteCategory}
+          setCategoryDeleted={setCategoryDeleted}
+          categoryDeleted={categoryDeleted}
+          categoryId={showingCard?._id}
         />
       )}
 
@@ -212,179 +252,51 @@ export const AddCategory = ({ setToggleAddCategory, setCategoryAdded, categoryAd
     </div>
   );
 };
+const DeleteCategory = ({ setShowingCard,categoryDeleted,setToggleDeleteCategory, setCategoryDeleted, categoryId }) => {
+  const { showLoader, hideLoader } = useLoader();
 
-const EmailComposePopup = ({ onClose, emails }) => {
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const popupRef = useRef(null);
-
-  // Function to handle form submission
-  // Function to handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleDelete = async () => {
+    showLoader();
     try {
-      const formDataToSend = new FormData();
-
-      // Append subject, message, and emails to FormData
-      formDataToSend.append("subject", subject);
-      formDataToSend.append("message", message);
-      const emailsString = JSON.stringify(emails);
-      formDataToSend.append("emails", emailsString);
-
-      // Append all selected files under the key 'files'
-      selectedFiles.forEach((file, index) => {
-        formDataToSend.append("files", file);
-      });
-
-      const res = await sendEmail(formDataToSend);
+      let res = await deleteCategory(categoryId);
+      setToggleDeleteCategory(false);
+      setCategoryDeleted(!categoryDeleted);
+      setShowingCard(null)
       toast.success(res?.data?.message);
-      setSubject("");
-      setMessage("");
-      setSelectedFiles([]);
-      // Close popup
-      onClose();
     } catch (err) {
-      console.log("err occured-----",err)
+      console.log("err occurred-----", err);
       toast.error(err?.response?.data?.message || "Something went wrong");
-    }finally{
-      hideLoader()
+    } finally {
+      hideLoader();
     }
   };
 
-  // Function to handle file selection
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-  };
-
-  // Function to remove a selected file
-  const removeSelectedFile = (index) => {
-    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
-
-  // Function to render selected files
-  const renderSelectedFiles = () => {
-    return (
-      <div className="mt-2">
-        <p className="text-sm font-medium text-gray-900">Selected Files:</p>
-        <ul className="list-disc list-inside">
-          {selectedFiles.map((file, index) => (
-            <li
-              key={index}
-              className="text-sm text-gray-700 flex justify-between"
-            >
-              <span>{file.name}</span>
-              <button
-                className="text-red-500"
-                onClick={() => removeSelectedFile(index)}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-
-  // Render "Add Attachments" button
-  const renderAddAttachmentsButton = () => (
-    <div className="mt-2">
-      <label
-        htmlFor="attachments"
-        className="block text-sm font-medium text-gray-900"
-      >
-        Add Attachments
-      </label>
-      <input
-        type="file"
-        id="attachments"
-        className="mt-1"
-        multiple
-        onChange={handleFileChange}
-      />
-    </div>
-  );
-
-  // Close popup when clicking outside of it
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [onClose]);
-
-  // Enable send button only when message field is filled
-  const isSendButtonDisabled = message.trim() === "";
-
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-gray-700 bg-opacity-50">
-      <div
-        ref={popupRef}
-        className="bg-white rounded-lg p-6 w-[500px] shadow-lg"
-      >
-        <h2 className="text-lg font-semibold mb-4">Compose Email</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="subject"
-              className="block text-sm font-medium text-gray-900"
-            >
-              Subject
-            </label>
-            <input
-              type="text"
-              id="subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="border border-gray-300 rounded-md w-full mt-1 p-2 focus:outline-none"
-              placeholder="Enter Subject"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium text-gray-900"
-            >
-              Message
-            </label>
-            <textarea
-              id="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="border border-gray-300 rounded-md w-full mt-1 p-2 focus:outline-none h-32 resize-none"
-              placeholder="Enter Message"
-            ></textarea>
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="attachments"
-              className="block text-sm font-medium text-gray-900"
-            >
-              Attachments
-            </label>
-            {renderAddAttachmentsButton()}
-            {selectedFiles.length > 0 && renderSelectedFiles()}
-          </div>
-          <button
-            type="submit"
-            className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${
-              isSendButtonDisabled ? "cursor-not-allowed opacity-50" : ""
-            }`}
-            disabled={isSendButtonDisabled}
-          >
-            Send
-          </button>
-        </form>
+    <div className="fixed w-full h-full inset-0 bg-gray-700/80 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-lg max-w-md">
+       
+          <>
+            <p className="text-lg font-semibold text-gray-900 mb-4">Delete Category</p>
+            <p>Click the button below to delete the category.</p>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={handleDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setToggleDeleteCategory(false)}
+                className="bg-gray-400 text-gray-800 px-4 py-2 rounded-lg ml-2"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+    
       </div>
     </div>
   );
 };
+
+

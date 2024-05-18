@@ -78,6 +78,15 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
                 Email
               </th>
               <th scope="col" className="px-6 py-1">
+                Phone No.
+              </th>
+              <th scope="col" className="px-6 py-1">
+                Land Line No.
+              </th>
+              <th scope="col" className="px-6 py-1">
+                Display Message
+              </th>
+              <th scope="col" className="px-6 py-1">
                 Address
               </th>
               {/* <th scope="col" className="px-6 py-5">
@@ -98,7 +107,11 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
                 <td className="px-6 py-2">{index + 1}</td>
                 <td className="px-6 py-2">{item.name}</td>
                 <td className="px-6 py-2">{item.nickName}</td>
+                
                 <td className="px-6 py-2">{item.email}</td>
+                <td className="px-6 py-2">{item.phone}</td>
+                <td className="px-6 py-2">{item.landLine}</td>
+                <td className="px-6 py-2">{item.displayMessage}</td>
                 <td className="px-6 py-4 max-w-[250px] break-words">
                   {item.address}
                 </td>
