@@ -82,7 +82,7 @@ const Dashboard = () => {
   
       </div>
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Category Dropdown</h1>
+        <h1 className="text-3xl font-bold mb-4">Available Categories</h1>
         {/* Dropdown */}
         <select className="border p-2 rounded-lg w-[30%]" onChange={handleSelectChange}>
           {/* Rendering dropdown options */}
@@ -277,7 +277,7 @@ const DeleteCategory = ({ setShowingCard,categoryDeleted,setToggleDeleteCategory
        
           <>
             <p className="text-lg font-semibold text-gray-900 mb-4">Delete Category</p>
-            <p>Click the button below to delete the category.</p>
+            <p>Are you sure you want to delete this category</p>
             <div className="mt-4 flex justify-end">
               <button
                 onClick={handleDelete}

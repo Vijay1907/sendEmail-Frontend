@@ -41,7 +41,7 @@ const User = () => {
       Category : categoryName,
       Email: user.email,
       Address: user.address,
-      Phone: user.phone,
+      Phone: "+91 " + user.phone,
       "Land Line":user.landLine,
       "Display Message":user.displayMessage
     }));
@@ -237,7 +237,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Name"
               />
               {errors.name && (
@@ -256,7 +256,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="nickName"
                 value={formData.nickName}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Nick Name"
               />
               {errors.nickName && (
@@ -275,7 +275,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Email"
               />
               {errors.email && (
@@ -283,22 +283,25 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
               )}
             </div>
 
-            <div>
-              <label
-                htmlFor="name"
-                className="block mb-2 text-sm font-medium text-gray-900 ml-1"
-              >
-                Phone No.
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
-                placeholder="Enter Phone No."
-              />
-            </div>
+            <div className="relative z-0 w-full  group">
+      <label
+        htmlFor="name"
+        className="block mb-2 text-sm font-medium text-gray-900 ml-1"
+      >
+        Phone No.
+      </label>
+      <div className="relative">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-900">+91</span>
+        <input
+          type="number"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          className=" bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full pl-12 p-2.5 focus:border focus:border-gray-300 focus:outline-none focus:bg-white"
+          placeholder="Enter Phone No."
+        />
+      </div>
+    </div>
 
             <div>
               <label
@@ -312,7 +315,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="landLine"
                 value={formData.landLine}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Land Line No."
               />
             </div>
@@ -329,7 +332,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="displayMessage"
                 value={formData.displayMessage}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Display Message"
               />
             
@@ -347,7 +350,7 @@ export const AddUser = ({ setToggleAddUser, setUserAdded, userAdded,categoryId }
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
+                className="focus:bg-white bg-gray-100 border-0 text-gray-900 text-sm rounded-lg block w-full p-2.5 focus:border focus:border-gray-300 focus:outline-none foucs:bg-white"
                 placeholder="Enter Address"
               />
               {errors.address && (

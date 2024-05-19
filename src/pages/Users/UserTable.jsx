@@ -29,11 +29,15 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
   const handleRowSelect = (row) => {
     const rowIndex = selectedRows.findIndex(r => r.email === row.email);
     if (rowIndex !== -1) {
-      setSelectedRows(selectedRows.map(r =>{r.email !== row.email } ));
+      // Remove the row from selectedRows
+      setSelectedRows(selectedRows.filter(r => r.email !== row.email));
     } else {
+      // Add the row to selectedRows
       setSelectedRows([...selectedRows, row]);
     }
   };
+
+  // console.log("selected rows",selectedRows)
   
 
   return (
@@ -72,9 +76,6 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
                 Name
               </th>
               <th scope="col" className="px-6 py-1">
-                Nick Name
-              </th>
-              <th scope="col" className="px-6 py-1">
                 Email
               </th>
               <th scope="col" className="px-6 py-1">
@@ -88,6 +89,9 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
               </th>
               <th scope="col" className="px-6 py-1">
                 Address
+              </th>
+              <th scope="col" className="px-6 py-1">
+                Action
               </th>
               {/* <th scope="col" className="px-6 py-5">
                                 Action
@@ -106,27 +110,26 @@ const DashTable = ({ categoryName,users, selectedRows, setSelectedRows }) => {
                 </td>
                 <td className="px-6 py-2">{index + 1}</td>
                 <td className="px-6 py-2">{item.name}</td>
-                <td className="px-6 py-2">{item.nickName}</td>
                 
                 <td className="px-6 py-2">{item.email}</td>
-                <td className="px-6 py-2">{item.phone}</td>
+                <td className="px-6 py-2">{"+91 "+ item.phone}</td>
                 <td className="px-6 py-2">{item.landLine}</td>
                 <td className="px-6 py-2">{item.displayMessage}</td>
                 <td className="px-6 py-4 max-w-[250px] break-words">
                   {item.address}
                 </td>
-                {/* <td className="px-6 py-4">
+                <td className="px-6 py-4">
                                     <div className='flex space-x-4 text-xl'>
                                         <FaEdit className='text-blue-500 cursor-pointer' onClick={()=>{
-                                            setEditData(item)
-                                            setToggleEdit(true)
+                                            // setEditData(item)
+                                            // setToggleEdit(true)
                                             }} />
                                         <FaTrash className='text-red-500 cursor-pointer' onClick={()=>{
-                                            setToggleDelete(true)
+                                            // setToggleDelete(true)
                                         }} />
                                         
                                     </div>
-                                </td> */}
+                                </td>
               </tr>
             ))}
           </tbody>
